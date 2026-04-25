@@ -1,0 +1,67 @@
+ 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Vulnerable Lab</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Acceso</h2>
+        <form id="loginForm">
+            <label>Usuario:</label><br>
+            <input type="text" id="username" name="username"><br><br>
+            <label>Contraseña:</label><br>
+            <input type="text" id="password" name="password"><br><br>
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="inputError" style="color: red;"></p>
+        <h3 id="resultado"></h3>
+        <p style="color: gray; font-family: monospace;" id="queryDebug"></p>
+    </div>
+
+    <script>
+        function sanitizeInput(value) {
+            // Remove common SQL injection characters
+            return value.replace(/['";\\]/g, '');
+        }
+
+        function handleInput(e) {
+            const original = e.target.value;
+            const sanitized = sanitizeInput(original);
+            if (sanitized !== original) {
+                e.target.value = sanitized;
+                e.target.style.borderColor = 'red';
+                document.getElementById('inputError').innerText = "Caracteres no permitidos: ', \", ;, \\";
+            } else {
+                e.target.style.borderColor = '';
+                document.getElementById('inputError').innerText = '';
+            }
+        }
+
+        document.getElementById('username').addEventListener('input', handleInput);
+        document.getElementById('password').addEventListener('input', handleInput);
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            const response = await fetch('http://127.0.0.1:5065/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Username: user, Password: pass })
+            });
+
+            if (response.ok) {
+                window.location.href = 'success.html';
+            } else {
+                document.getElementById('resultado').innerText = "Contraseña incorrecta";
+                document.getElementById('resultado').style.color = "red";
+                document.getElementById('queryDebug').innerText = "";
+            }
+        });
+    </script>
+</body>
+</html>
