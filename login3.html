@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Seguro</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Acceso Seguro</h2>
+        <form id="loginForm">
+            <label>Usuario:</label><br>
+            <input type="text" id="username" name="username"><br><br>
+            <label>Contraseña:</label><br>
+            <input type="password" id="password" name="password"><br><br>
+            <button type="submit">Entrar</button>
+        </form>
+        <p id="inputError" style="color: red;"></p>
+        <h3 id="resultado"></h3>
+        <p style="color: gray; font-family: monospace;" id="queryDebug"></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            const response = await fetch('http://127.0.0.1:5065/api/login-secure', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Username: user, Password: pass })
+            });
+
+            if (response.ok) {
+                window.location.href = 'success.html';
+            } else {
+                document.getElementById('resultado').innerText = "Credenciales incorrectas";
+                document.getElementById('resultado').style.color = "red";
+                document.getElementById('queryDebug').innerText = "";
+            }
+        });
+    </script>
+</body>
+</html>

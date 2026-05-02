@@ -14,7 +14,7 @@
             <input type="text" id="username" name="username"><br><br>
             <label>Contraseña:</label><br>
             <input type="text" id="password" name="password"><br><br>
-            <button type="submit">Entrar</button>
+            <button type="submit" id="submitBtn">Entrar</button>
         </form>
         <p id="inputError" style="color: red;"></p>
         <h3 id="resultado"></h3>
@@ -22,26 +22,36 @@
     </div>
 
     <script>
-        function sanitizeInput(value) {
-            // Remove common SQL injection characters
-            return value.replace(/['";\\]/g, '');
+        function hasInvalidChars(value) {
+            // signos que se pueden usar en una inyeccion de SQL
+            return /['";\\]/.test(value);
+        }
+
+        function updateButtonState() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const isValid = !hasInvalidChars(user) && !hasInvalidChars(pass);
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = !isValid;
+            btn.style.backgroundColor = isValid ? '' : 'gray';
         }
 
         function handleInput(e) {
             const original = e.target.value;
-            const sanitized = sanitizeInput(original);
-            if (sanitized !== original) {
-                e.target.value = sanitized;
+            if (hasInvalidChars(original)) {
                 e.target.style.borderColor = 'red';
                 document.getElementById('inputError').innerText = "Caracteres no permitidos: ', \", ;, \\";
             } else {
                 e.target.style.borderColor = '';
                 document.getElementById('inputError').innerText = '';
             }
+            updateButtonState();
         }
 
         document.getElementById('username').addEventListener('input', handleInput);
         document.getElementById('password').addEventListener('input', handleInput);
+
+        updateButtonState();
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
